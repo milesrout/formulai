@@ -8,13 +8,16 @@ class formula:
     def __and__(self, other):
         return conj(self, other)
 
+    def __invert__(self):
+        return impl(self, bot)
+
 
 def raise_arity(expected, actual):
     raise TypeError(f'too many arguments: expected {expected}, got {actual}')
 
 
 def operator(*, arity):
-    class klass(type):
+    class operator_(type):
         def __new__(cls, name, bases, dct):
             def init(self, *args):
                 if len(args) != arity:
@@ -39,7 +42,7 @@ def operator(*, arity):
 
             result = super().__new__(cls, name, bases, d)
             return result
-    return klass
+    return operator_
 
 
 class atomic(formula, metaclass=operator(arity=1)):
@@ -47,11 +50,16 @@ class atomic(formula, metaclass=operator(arity=1)):
         return self.a
 
     def __repr__(self):
-        return f'atomic({self.a})'
+        return f'atomic({self.a!r})'
+
+
+bot = atomic('⊥')
 
 
 class impl(formula, metaclass=operator(arity=2)):
     def __str__(self):
+        if self.b is bot:
+            return f'¬{self.a}'
         return f'({self.a} → {self.b})'
 
     def __repr__(self):
@@ -72,3 +80,13 @@ class conj(formula, metaclass=operator(arity=2)):
 
     def __repr__(self):
         return f'conj({self.a!r}, {self.b!r})'
+
+
+if __name__ == '__main__':
+    a = atomic('A')
+    b = atomic('B')
+    c = atomic('C')
+    print(a | ~a)
+    print(a > a | b)
+    print(a & b > a)
+    print(a | b & c)
