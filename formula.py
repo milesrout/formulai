@@ -58,8 +58,9 @@ bot = atomic('⊥')
 
 class impl(formula, metaclass=operator(arity=2)):
     def __str__(self):
-        if self.b is bot:
-            return f'¬{self.a}'
+        # This is temporarily disabled
+        # if self.b is bot:
+        #     return f'¬{self.a}'
         return f'({self.a} → {self.b})'
 
     def __repr__(self):
